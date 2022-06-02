@@ -1,4 +1,6 @@
 import * as dotenv from 'dotenv';
+dotenv.config();
+
 import mongoose from 'mongoose';
 import express from 'express';
 import cors from 'cors'
@@ -7,7 +9,6 @@ import router from './routes';
 import validationErrorMiddleware from './validation_middleware'
 
 // init project
-dotenv.config();
 if (process.env.MONGO_URI) {
     mongoose.connect(process.env.MONGO_URI);
 }
