@@ -1,6 +1,7 @@
+import { FilterQuery, Document } from 'mongoose';
 import { Request, Response } from 'express';
-import Exercise from './models/exercise';
-import User from './models/user';
+import Exercise, { IExercise } from './models/exercise';
+import User, { IUser } from './models/user';
 import { get_date } from './timestamp_service_api';
 
 
@@ -40,7 +41,7 @@ async function create_exercise(req:Request, res:Response) {
     }
 
     const exercises = new Exercise({
-        user_id: req.params._id,
+        user_id: user!.id,
         description: req.body.description,
         duration: req.body.duration,
         date
@@ -51,5 +52,47 @@ async function create_exercise(req:Request, res:Response) {
     res.json({ ...user!.toJSON(), ...exercises.toJSON() })
 }
 
+async function get_log(req:Request, res:Response) {
+    const from_promise = req.query.from ? get_date(req.query.from.toString()) : null;
+    const to_promise = req.query.to ? get_date(req.query.to.toString()) : null;
+    const limit = req.query.limit ? parseInt(req.query.limit.toString()) : null;
+    let user: (Document<unknown, any, IUser> & IUser) | null;
+    try {
+        user = await User.findById(req.params._id).exec();
+    }
+    catch {
+        res.status(400).json({ error: 'invalid user id' });
+        return;
+    }
+    if (!user) {
+        res.status(400).json({ error: 'invalid user id' });
+        return;
+    }
 
-export { all_users, create_user, create_exercise };
+    let filter: FilterQuery<IExercise> = { user_id: user.id }
+    const from = await from_promise;
+    const to = await to_promise;
+
+    if (from || to) {
+        filter.date = {}
+        if (from) {
+            filter.date['$gte'] = from;
+        }
+        if (to) {
+            filter.date['$lte'] = to;
+        }
+    }
+
+    const query = Exercise.find(filter);
+
+    if (limit) {
+        query.limit(limit);
+    }
+
+    const log = await query.exec();
+
+    res.json({ ...user!.toJSON(), count: log.length, log })
+}
+
+
+export { all_users, create_user, create_exercise, get_log };
