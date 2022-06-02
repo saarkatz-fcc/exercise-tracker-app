@@ -14,6 +14,9 @@ const exerciseSchema = new Schema<IExercise>({
     duration: { type: Number, required: true },
     date: { type: Date, required: true, default: Date.now }
 });
+exerciseSchema.methods.toJSON = function(): Object {
+    return { description: this.description, duration: this.duration, date: this.date.toDateString() };
+}
 
 const Exercise = model<IExercise>('Exercise', exerciseSchema);
 
