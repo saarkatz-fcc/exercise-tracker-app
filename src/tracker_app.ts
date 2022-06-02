@@ -8,12 +8,6 @@ async function all_users(req:Request, res:Response) {
 }
 
 async function create_user(req:Request, res:Response) {
-    // Validate input
-    const username: string = req.body.username
-    if (!req.body.username) {
-        res.status(400).json({ error: 'username is required' });
-        return;
-    }
     let user = new User({username: req.body.username});
 
     const user_exists = await User.findOne({ username: user.username }).exec();
