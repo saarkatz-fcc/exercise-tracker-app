@@ -9,6 +9,9 @@ interface IUser {
 const userSchema = new Schema<IUser>({
     username: { type: String, required: true, unique: true }
 });
+userSchema.methods.toJSON = function(): Object {
+    return { username: this.username, _id: this._id };
+}
 
 const User = model<IUser>('User', userSchema);
 
