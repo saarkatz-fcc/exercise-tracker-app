@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
+import User from './models/user';
 
 
-async function tracker_app_view(req:Request, res:Response) {
-    res.json({ res: 'Hello World' })
+async function all_users(req:Request, res:Response) {
+    const users = await User.find({})
+    res.json(users);
 }
 
 
-export default tracker_app_view;
+export { all_users };
