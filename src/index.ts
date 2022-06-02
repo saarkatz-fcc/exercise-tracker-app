@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors'
 import { AddressInfo } from 'net';
 import router from './routes';
+import validationErrorMiddleware from './validation_middleware'
 
 // init project
 dotenv.config();
@@ -28,6 +29,9 @@ app.get("/", function (req, res) {
 });
 
 app.use(router);
+
+// Validation Error handling
+app.use(validationErrorMiddleware);
 
 // listen for requests :)
 let listener = app.listen(process.env.PORT || 3000, function () {
